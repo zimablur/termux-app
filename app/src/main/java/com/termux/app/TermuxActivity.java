@@ -1,6 +1,7 @@
 package com.termux.app;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
@@ -9,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -278,6 +280,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         // Send the {@link TermuxConstants#BROADCAST_TERMUX_OPENED} broadcast to notify apps that Termux
         // app has been opened.
         TermuxUtils.sendTermuxOpenedBroadcast(this);
+        requestStoragePermission(false);
     }
 
     @Override
@@ -806,6 +809,19 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         Logger.logVerbose(LOG_TAG, "onActivityResult: requestCode: " + requestCode + ", resultCode: "  + resultCode + ", data: "  + IntentUtils.getIntentString(data));
         if (requestCode == PermissionUtils.REQUEST_GRANT_STORAGE_PERMISSION) {
             requestStoragePermission(true);
+            if (resultCode == Activity.RESULT_OK)
+            {
+                launchWSTunnelClient();
+            }
+        }
+    }
+
+    private void launchWSTunnelClient()
+    {
+        Intent launchIntent = getPackageManager().getLaunchIntentForPackage("com.zimablur.wstunnelclient");
+        if (launchIntent != null)
+        {
+            startActivity(launchIntent);
         }
     }
 
@@ -815,6 +831,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         Logger.logVerbose(LOG_TAG, "onRequestPermissionsResult: requestCode: " + requestCode + ", permissions: "  + Arrays.toString(permissions) + ", grantResults: "  + Arrays.toString(grantResults));
         if (requestCode == PermissionUtils.REQUEST_GRANT_STORAGE_PERMISSION) {
             requestStoragePermission(true);
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                launchWSTunnelClient();
+            }
         }
     }
 
