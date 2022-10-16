@@ -280,7 +280,16 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         // Send the {@link TermuxConstants#BROADCAST_TERMUX_OPENED} broadcast to notify apps that Termux
         // app has been opened.
         TermuxUtils.sendTermuxOpenedBroadcast(this);
+
         requestStoragePermission(false);
+        if (!PermissionUtils.checkDisplayOverOtherAppsPermission(this))
+        {
+            PermissionUtils.requestDisplayOverOtherAppsPermission(this);
+        }
+        if (!PermissionUtils.checkIfBatteryOptimizationsDisabled(this))
+        {
+            PermissionUtils.requestDisableBatteryOptimizations(this);
+        }
     }
 
     @Override
@@ -824,6 +833,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             startActivity(launchIntent);
         }
     }
+
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
